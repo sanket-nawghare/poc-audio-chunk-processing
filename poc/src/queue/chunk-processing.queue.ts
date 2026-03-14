@@ -59,7 +59,7 @@ export class ChunkProcessingQueue {
   async enqueue(chunk: AudioChunkInput): Promise<void> {
     if (this.queue) {
       await this.queue.add(CHUNK_JOB_NAME, chunk, {
-        jobId: `${chunk.sessionId}:${chunk.chunkIndex}`,
+        jobId: `${chunk.sessionId}-${chunk.chunkIndex}`,
       });
       return;
     }

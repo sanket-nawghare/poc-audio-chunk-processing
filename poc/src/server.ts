@@ -14,14 +14,20 @@ async function bootstrap(): Promise<void> {
     logger.info(`POC backend listening on port ${PORT}`);
   });
 
+  let stopping = false;
   const shutdown = async () => {
+    if (stopping) return;
+    stopping = true;
     logger.info("Shutting down service");
-    await chunkIngestionService.close();
-    server.close();
+    server.closeAllConnections();
+    server.close(async () => {
+      await chunkIngestionService.close();
+      process.exit(0);
+    });
   };
 
-  process.on("SIGINT", shutdown);
-  process.on("SIGTERM", shutdown);
+  process.once("SIGINT", shutdown);
+  process.once("SIGTERM", shutdown);
 }
 
 bootstrap().catch((error) => {

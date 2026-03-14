@@ -1,5 +1,7 @@
 import { AudioSession } from "../models/session.model";
 import { AudioSessionMetadata } from "../models/metadata.model";
+import { env } from "../config/env";
+import { extFromContentType } from "./audio-storage.service";
 
 export class MetadataGeneratorService {
   generate(session: AudioSession): AudioSessionMetadata {
@@ -38,7 +40,7 @@ export class MetadataGeneratorService {
       startTime,
       endTime,
       durationSeconds,
-      audioUrl: `https://poc-audio.local/audio/${session.sessionId}.wav`,
+      audioUrl: `${env.audioBaseUrl}/${session.sessionId}.${extFromContentType(session.audioContentType ?? null)}`,
       status: missingChunkIndexes.length === 0 ? "completed" : "partial",
       aiSignals: [...session.aiSignals],
     };

@@ -1,8 +1,10 @@
 import express from "express";
 import bodyParser from "body-parser";
+import path from "path";
 import { chunkRouter } from "./api/chunk.routes";
 import { fhirRouter } from "./api/fhir.routes";
 import { ValidationError, NotFoundError } from "./utils/errors";
+import { env } from "./config/env";
 
 export const createApp = () => {
   const app = express();
@@ -13,6 +15,7 @@ export const createApp = () => {
     res.json({ ok: true, service: "clinical-audio-poc" });
   });
 
+  app.use("/audio", express.static(path.resolve(env.audioStoragePath)));
   app.use(chunkRouter);
   app.use(fhirRouter);
 

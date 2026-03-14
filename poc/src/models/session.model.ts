@@ -17,4 +17,5 @@ export interface AudioSession {
   updatedAt: string;
   completedAt?: string;
   aiSignals: string[];
+  audioContentType?: string;
 }

@@ -3,6 +3,7 @@ import { AudioSession } from "../models/session.model";
 import { sessionStore } from "../stores/session.store";
 import { logger } from "../utils/logger";
 import { metadataGeneratorService } from "./metadata-generator.service";
+import { audioStorageService } from "./audio-storage.service";
 import { aiChunkProcessor } from "../ai/ai-chunk-processor";
 import { env } from "../config/env";
 
@@ -58,6 +59,10 @@ export class SessionAggregationService {
       receivedAt: new Date().toISOString(),
     };
     current.chunksByIndex.set(chunk.chunkIndex, storedChunk);
+    const detectedContentType = await audioStorageService.saveChunk(storedChunk);
+    if (detectedContentType && !current.audioContentType) {
+      current.audioContentType = detectedContentType;
+    }
 
     const aiSignal = env.enableAiChunkAnalysis
       ? await aiChunkProcessor.analyzeChunk(chunk)
@@ -72,7 +77,9 @@ export class SessionAggregationService {
 
     sessionStore.saveSession(current);
 
-    if (current.status !== "in-progress") {
+    if (current.status === "completed") {
+      const chunkIndexes = Array.from(current.chunksByIndex.keys());
+      await audioStorageService.assembleSession(current.sessionId, chunkIndexes, current.audioContentType);
       const metadata = metadataGeneratorService.generate(current);
       sessionStore.saveMetadata(metadata);
     }

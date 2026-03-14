@@ -289,7 +289,7 @@ async function main(): Promise<void> {
     const bridge = await startPocBridge(args.pocBaseUrl, bridgePort);
     simulationBaseUrl = bridge.url;
     callbackUrl = bridge.url;
-    stop = bridge.stop;
+    // stop = bridge.stop;
   } else {
     const expressPort = Number(args.port || process.env.SIMULATOR_PORT || 3333);
     const expressSimulator = await startExpressSimulator(expressPort);
